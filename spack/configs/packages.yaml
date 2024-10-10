@@ -8,7 +8,7 @@ packages:
   hpctoolkit:
     require: +mpi +papi +python
   papi:
-    require: +examples +shared +static_tools
+    require: +example +shared +static_tools
   tau:
     require: +comm +binutils +elf +libdwarf +libunwind +mpi +otf2 +pdt +papi +pthreads +python
 
