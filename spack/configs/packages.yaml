@@ -1,0 +1,14 @@
+packages:
+  darshan-util:
+    require: +bzip2
+  darshan-runtime:
+    require: +mpi
+  dyninst:
+    require: +openmp ~static
+  hpctoolkit:
+    require: +mpi +papi +python
+  papi:
+    require: +examples +shared +static_tools
+  tau:
+    require: +comm +binutils +elf +libdwarf +libunwind +mpi +otf2 +pdt +papi +pthreads +python
+

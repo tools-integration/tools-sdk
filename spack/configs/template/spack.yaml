@@ -1,0 +1,11 @@
+spack:
+  concretizer:
+    unify: true
+
+  specs:
+  - darshan-runtime
+  - darshan-util
+  - dyninst
+  - hpctoolkit
+  - papi
+  - tau
