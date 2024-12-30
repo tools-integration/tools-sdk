@@ -1,0 +1,50 @@
+spack:
+
+  include:
+  - $FACILITY_CONFIG_ROOT/frontier/rocm-6.0.0/packages.yaml
+  - $FACILITY_CONFIG_ROOT/frontier/rocm-6.0.0/compilers.yaml
+  - $FACILITY_CONFIG_ROOT/frontier/packages.yaml
+  - $FACILITY_CONFIG_ROOT/frontier/compilers.yaml
+  - $TOOLS_SDK_ROOT/spack/configs/packages.yaml
+
+  concretizer:
+    unify: when_possible
+
+  packages:
+    papi:
+      require:
+      - one_of:
+        - +rocm +rocm_smi
+        - ~rocm ~rocm_smi
+
+  definitions:
+  # Used with packages that are `ROCmPackages`
+  - rocm_package:
+    - +rocm amdgpu_target=gfx90a
+    - ~rocm
+
+  # Used with packages that define a `rocm` variant
+  - rocm_enabled:
+    - +rocm
+    - ~rocm
+
+  specs:
+  # Core
+  - dyninst
+
+  # Tools
+  - darshan-runtime
+  - darshan-util
+
+  - matrix:
+    - - hpctoolkit
+    - - $rocm_enabled
+
+  - matrix:
+    - - papi
+    - - $rocm_package
+
+  - matrix:
+    - - tau
+    - - $rocm_enabled
+
