@@ -1,0 +1,35 @@
+# Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
+# http://www.apache.org/licenses/LICENSE-2.0>.
+# This file may not be copied, modified, or distributed
+# except according to those terms.
+#
+# Module configuration file for the Data and Vis SDK on Frontier
+#   maintainer: Ryan Krattiger @kwryankrattiger (ryan.krattiger@kitware.com)
+modules:
+  default:
+    enable:
+    - lmod
+    lmod:
+      defaults: [cray-mpich@8.1.23, rocm/6.0.0]
+      core_compilers: [gcc@12.2.0]
+      verbose: true
+      hash_length: 0
+      'hierarchy:': []
+      all:
+        autoload: direct
+        environment:
+          set:
+            "{name}_ROOT": "{prefix}"
+        suffixes:
+          +rocm: rocm
+      exclude_implicits: true
+      include:
+      - darshan-runtime
+      - darshan-util
+      - dyninst
+      - hpctoolkit
+      - papi
+      - tau
+  prefix_inspections:
+    lib64: [LD_LIBRARY_PATH]
+    lib: [LD_LIBRARY_PATH]
