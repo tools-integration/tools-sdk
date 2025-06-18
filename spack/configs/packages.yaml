@@ -12,6 +12,6 @@ packages:
   tau:
     require:
     - one_of:
-      - @2.35: +comm +binutils +elf +libdwarf +libunwind +mpi +otf2 +pdt +papi +pthreads +python
-      - @:2.34 +binutils +elf +libdwarf +libunwind +mpi +otf2 +pdt +papi +pthreads +python
+      - "@2.35: +comm +binutils +elf +libdwarf +libunwind +mpi +otf2 +pdt +papi +pthreads +python"
+      - "@:2.34 +binutils +elf +libdwarf +libunwind +mpi +otf2 +pdt +papi +pthreads +python"
 
