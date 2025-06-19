@@ -11,5 +11,9 @@ packages:
     require: +example +shared +static_tools
   tau:
     require:
-    - "@:2.34 +binutils +elf +libdwarf +libunwind +mpi +otf2 +pdt +papi +pthreads +python"
-
+      - +binutils +elf +libdwarf +libunwind +mpi +otf2 +pdt +papi +pthreads +python
+    prefer:
+      - +comm
+    conflict:
+      - spec: +comm
+        when: "@:2.34"
