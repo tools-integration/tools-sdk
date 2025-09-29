@@ -11,7 +11,7 @@ packages:
     require: +example +shared +static_tools
   tau:
     require:
-      - +binutils +elf +libdwarf +libunwind +mpi +otf2 +pdt +papi +pthreads +python
+      - +binutils +elf +libdwarf libunwind=shared +mpi +otf2 +pdt +papi +pthreads +python
     prefer:
       - +comm
     conflict:
