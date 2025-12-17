@@ -1,0 +1,21 @@
+##============================================================================
+##  The contents of this file are covered by the Viskores license. See
+##  LICENSE.txt for details.
+##
+##  By contributing to this file, all contributors agree to the Developer
+##  Certificate of Origin Version 1.1 (DCO 1.1) as stated in DCO.txt.
+##============================================================================
+
+# Include the github-sync component
+include:
+  - component: $CI_SERVER_FQDN/dav-sdk/gh-gl-sync/github-sync@~latest
+    inputs:
+      github_project: tools-integration/tools-sdk
+      gitlab_repo: git@ssh.gitlab.spack.io:tools-sdk/tools-sdk.git
+      gitlab_host: https://gitlab.spack.io/
+      gitlab_project: tools-sdk/tools-sdk
+      status_context: "Frank CI"
+      sync_draft_prs: true
+      sync_image: ghcr.io/spack/ci-bridge:0.0.46
+    rules:
+      - if: $CI_SERVER_HOST == "gitlab.spack.io"
