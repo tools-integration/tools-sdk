@@ -7,9 +7,8 @@ die() { echo "error: $1"; exit "$2"; }
 while getopts "h" opt; do
   case $opt in
     h)
-      echo "Usage: $0 [setup|build|install|submit]"
+      echo "Usage: $0 [setup|install|submit]"
       echo "  setup   - Setup spack environment"
-      echo "  build   - Build (concretize) spack environment"
       echo "  install - Install spack environment"
       echo "  submit  - Submit results (placeholder for CDash/reporting)"
       ;;
@@ -24,29 +23,25 @@ readonly STEP=$1
 [ -z "$STEP" ] && die "no argument given: $*" 2
 shift
 
-source scripts/ci/gitlab-ci/setup-vars.sh
-
 # Determine which spack environment to use based on job name
-ENV_NAME="frontier"
+export TOOLS_SDK_ROOT=${PWD}
+
+if [ -z "${SPACK_BUILD_DIR}" ]; then
+  export SPACK_BUILD_DIR=${PWD}/build
+fi
+
+: "${NUM_CORES:=4}"
 
 case ${STEP} in
   setup)
     echo "**********Setup Begin**********"
+    git clone -c feature.manyFiles=true https://github.com/spack/spack.git "${SPACK_BUILD_DIR}/spack"
 
-    # Setup spack if not already available
-    if [ -z "$SPACK_ROOT" ]; then
-      if [ ! -d "${CI_ROOT_DIR}/spack" ]; then
-        git clone -c feature.manyFiles=true https://github.com/spack/spack.git "${CI_ROOT_DIR}/spack"
-      fi
-      # Source spack environment
-      . "${CI_ROOT_DIR}/spack/share/spack/setup-env.sh"
-    else
-      # Re-source existing spack installation
-      . "${SPACK_ROOT}/share/spack/setup-env.sh"
-    fi
+    # Source spack environment
+    . "${SPACK_BUILD_DIR}/spack/share/spack/setup-env.sh"
 
     # Activate the environment pointing to the config directory
-    spack env activate "${CI_SOURCE_DIR}/spack/configs/${ENV_NAME}"
+    spack env activate --create --without-view --envfile "${PWD}/spack/template" tools-sdk
 
     # Verify environment is active
     spack env status
@@ -54,50 +49,37 @@ case ${STEP} in
     # Show configuration
     spack config blame
 
-    echo "**********Setup End**********"
-    ;;
-
-  build)
-    echo "**********Build Begin**********"
-
-    # Source spack
-    if [ -z "$SPACK_ROOT" ]; then
-      . "${CI_ROOT_DIR}/spack/share/spack/setup-env.sh"
-    else
-      . "${SPACK_ROOT}/share/spack/setup-env.sh"
-    fi
-
-    # Activate the environment
-    spack env activate "${CI_SOURCE_DIR}/spack/configs/${ENV_NAME}"
-
     # Concretize the environment
     spack concretize -f
 
     # Show what will be installed
     spack find
 
-    echo "**********Build End**********"
+    # Download archives
+    spack fetch --dependencies
+
+    echo "**********Setup End**********"
     ;;
 
   install)
     echo "**********Install Begin**********"
 
-    # Source spack
-    if [ -z "$SPACK_ROOT" ]; then
-      . "${CI_ROOT_DIR}/spack/share/spack/setup-env.sh"
-    else
-      . "${SPACK_ROOT}/share/spack/setup-env.sh"
-    fi
+    . "${SPACK_BUILD_DIR}/spack/share/spack/setup-env.sh"
 
-    # Activate the environment
-    spack env activate "${CI_SOURCE_DIR}/spack/configs/${ENV_NAME}"
+    # Activate the environment pointing to the config directory
+    spack env activate tools-sdk
+
+    # Verify environment is active
+    spack env status
+
+    # Show configuration
+    spack config blame
 
     # Install the environment with timing and parallel jobs
-    spack -t install -j 8 --verbose --fail-fast
+    spack -t install "-j$((NUM_CORES*2))" --show-log-on-error --no-check-signature --fail-fast
 
     # Show what was installed
     spack find -lv
-
     echo "**********Install End**********"
     ;;
 

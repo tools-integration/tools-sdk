@@ -1,9 +1,6 @@
 #!/bin/bash --login
 set -e
 
-# CI_ROOT_DIR: Parent directory where spack will be cloned
-export CI_ROOT_DIR="${CI_PROJECT_DIR}/.."
-
 # CI_SOURCE_DIR: Project source directory
 export CI_SOURCE_DIR="${CI_PROJECT_DIR}"
 
