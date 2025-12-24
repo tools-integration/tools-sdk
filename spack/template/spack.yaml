@@ -3,12 +3,12 @@ spack:
     unify: true
 
   include:
-  - $TOOLS_SDK_ROOT/spack/configs/packages.yaml
+    - $TOOLS_SDK_ROOT/spack/configs/packages.yaml
 
   specs:
-  - darshan-runtime
-  - darshan-util
-  - dyninst
-  - hpctoolkit
-  - papi
-  - tau
+    - darshan-runtime
+    - darshan-util
+    - dyninst
+    - hpctoolkit
+    - papi
+    - tau
