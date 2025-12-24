@@ -1,0 +1,25 @@
+name: Lint
+on:
+  push:
+  pull_request:
+jobs:
+  shellcheck:
+    name: Shellcheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Install ShellCheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+      - name: Run ShellCheck
+        run: find ./scripts -name "*.sh" -exec shellcheck {} +
+  yamlfmt:
+    name: YAML Lint
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/google/yamlfmt:latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Run yamlfmt
+        run: yamlfmt -lint .

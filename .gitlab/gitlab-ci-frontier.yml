@@ -12,7 +12,6 @@ stages:
   - install
   - post
 
-
 .checkout_commit: &checkout_commit |
   git fetch
   source scripts/ci/gitlab-ci/setup-vars.sh
@@ -33,11 +32,11 @@ stages:
   variables:
     CUSTOM_CI_BUILDS_DIR: "/lustre/orion/ums032/scratch/ums032_auser/ci/tools-sdk/runtime"
     OLCF_SERVICE_ACCOUNT: "ums032_auser"
-    GIT_CONFIG_GLOBAL:    "true"
-    GITLAB_SITE:          "OLCF Frontier"
-    CI_BIN_DIR:           "$CI_PROJECT_DIR/build"
+    GIT_CONFIG_GLOBAL: "true"
+    GITLAB_SITE: "OLCF Frontier"
+    CI_BIN_DIR: "$CI_PROJECT_DIR/build"
     SPACK_CONFIG_FACILITY_DIR: "/lustre/orion/ums032/proj-shared/spack-configs/facility"
-    SPACK_CONFIG_DAV_SDK_DIR:  "$CI_PROJECT_DIR/spack/configs"
+    SPACK_CONFIG_DAV_SDK_DIR: "$CI_PROJECT_DIR/spack/configs"
     # Order matters
     JOB_MODULES: >-
       Core/24.00
@@ -51,7 +50,7 @@ stages:
 setup:frontier-gcc:
   extends: .frontier-common
   stage: setup
-  tags: [ shell ]
+  tags: [shell]
   before_script:
     - *checkout_commit
     - *load_modules
@@ -66,7 +65,7 @@ setup:frontier-gcc:
 build:frontier-gcc:
   extends: .frontier-common
   stage: build
-  tags: [ shell ]
+  tags: [shell]
   before_script:
     - *load_modules
   script:
@@ -100,7 +99,7 @@ install:frontier-gcc:
     - build:frontier-gcc
 
 .report-status:
-  tags: [ shell ]
+  tags: [shell]
   variables:
     STATUS_PROJECT: tools-integration/tools-sdk
     STATUS_NAME: OLCF Frontier
@@ -185,7 +184,7 @@ launch_pipelines:
 # Add manual job to remove it
 wipe_runtime_directory:
   stage: build
-  tags: [ shell ]
+  tags: [shell]
   rules:
     - if: $CI_PIPELINE_SOURCE =~ /web/ && $MAINTAINANCE_PIPELINE != null
   variables:
