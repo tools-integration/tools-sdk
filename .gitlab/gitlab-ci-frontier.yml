@@ -8,7 +8,6 @@ default:
 stages:
   - pre
   - setup
-  - build
   - install
   - post
 
@@ -30,13 +29,16 @@ stages:
     - if: $CI_PIPELINE_SOURCE =~ /parent_pipeline|web/ && $MAINTAINANCE_PIPELINE == null
   interruptible: true
   variables:
+    CI_BIN_DIR: "$CI_PROJECT_DIR/build"
     CUSTOM_CI_BUILDS_DIR: "/lustre/orion/ums032/scratch/ums032_auser/ci/tools-sdk/runtime"
-    OLCF_SERVICE_ACCOUNT: "ums032_auser"
     GIT_CONFIG_GLOBAL: "true"
     GITLAB_SITE: "OLCF Frontier"
-    CI_BIN_DIR: "$CI_PROJECT_DIR/build"
-    SPACK_CONFIG_FACILITY_DIR: "/lustre/orion/ums032/proj-shared/spack-configs/facility"
-    SPACK_CONFIG_DAV_SDK_DIR: "$CI_PROJECT_DIR/spack/configs"
+    NUM_CORES: "32"
+    OLCF_SERVICE_ACCOUNT: "ums032_auser"
+    SPACK_DISABLE_LOCAL_CONFIG: "true"
+    SPACK_BUILD_DIR: "${CUSTOM_CI_BUILDS_DIR}/artifacts/spack-build-${CI_PIPELINE_IID}"
+    SPACK_USER_CACHE_PATH: "${SPACK_BUILD_DIR}/cache"
+
     # Order matters
     JOB_MODULES: >-
       Core/24.00
@@ -55,48 +57,34 @@ setup:frontier-gcc:
     - *checkout_commit
     - *load_modules
   script:
+    - source scripts/ci/gitlab-ci/setup-vars.sh
     - bash scripts/ci/gitlab-ci/run.sh setup
-  artifacts:
-    expire_in: 24 hours
-    when: always
-    paths:
-      - build/
-
-build:frontier-gcc:
-  extends: .frontier-common
-  stage: build
-  tags: [shell]
-  before_script:
-    - *load_modules
-  script:
-    - bash scripts/ci/gitlab-ci/run.sh build
-  artifacts:
-    expire_in: 24 hours
-    when: always
-    paths:
-      - build/
-  needs:
-    - setup:frontier-gcc
-  dependencies:
-    - setup:frontier-gcc
 
 install:frontier-gcc:
   extends: .frontier-common
   stage: install
   tags: [frontier, slurm]
   variables:
-    SCHEDULER_PARAMETERS: "-AUMS032 -pbatch -t 01:00:00 --nice=0 -c32 --threads-per-core=2 -N 1"
+    SCHEDULER_PARAMETERS: "-AUMS032 -pbatch -t 01:00:00 --nice=0 -c${NUM_CORES} --threads-per-core=2 -N 1 -C nvme"
+    SPACK_USER_CACHE_COMPUTING_PATH: "/mnt/bb/ums032_auser/spack-cache/"
+    SPACK_BUILD_COMPUTING_DIR: "/mnt/bb/ums032_auser/spack-build/"
   before_script:
+    - *checkout_commit
     - *load_modules
   script:
-    - bash scripts/ci/gitlab-ci/run.sh install
+    - source scripts/ci/gitlab-ci/setup-vars.sh
+    - ls /mnt/bb/ums032_auser/
+    - rsync -av "${SPACK_BUILD_DIR}/spack" "${SPACK_BUILD_COMPUTING_DIR}"
+    - rsync -av "${SPACK_USER_CACHE_PATH}/" "${SPACK_USER_CACHE_COMPUTING_PATH}"
+    - SPACK_BUILD_DIR="${SPACK_BUILD_COMPUTING_DIR}" SPACK_USER_CACHE_PATH="${SPACK_USER_CACHE_COMPUTING_PATH}" bash scripts/ci/gitlab-ci/run.sh install
   after_script:
     - *load_modules
+    - source scripts/ci/gitlab-ci/setup-vars.sh
     - bash scripts/ci/gitlab-ci/run.sh submit
   needs:
-    - build:frontier-gcc
+    - setup:frontier-gcc
   dependencies:
-    - build:frontier-gcc
+    - setup:frontier-gcc
 
 .report-status:
   tags: [shell]
@@ -127,7 +115,7 @@ success:
   variables:
     STATUS_DESC: Pipeline succeeded
   dependencies:
-    - build:frontier-gcc
+    - setup:frontier-gcc
     - install:frontier-gcc
 
 failure:
@@ -139,7 +127,21 @@ failure:
   variables:
     STATUS_DESC: Pipeline failed
   dependencies:
-    - build:frontier-gcc
+    - setup:frontier-gcc
+    - install:frontier-gcc
+
+cleanup_spack:
+  stage: post
+  extends: .frontier-common
+  tags: [shell]
+  rules:
+    - if: $CI_PIPELINE_SOURCE =~ /parent_pipeline|web/ && $MAINTAINANCE_PIPELINE == null
+      when: always
+  script:
+    - source scripts/ci/gitlab-ci/setup-vars.sh
+    - rm -rf "${SPACK_BUILD_DIR}"
+  dependencies:
+    - setup:frontier-gcc
     - install:frontier-gcc
 
 generate_pipelines:
@@ -169,7 +171,7 @@ generate_pipelines:
       - generated_pipelines.yml
 
 launch_pipelines:
-  stage: build
+  stage: post
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
   variables:
@@ -183,7 +185,7 @@ launch_pipelines:
 # Frontier runtime files for the runners occasionally get corrupted,
 # Add manual job to remove it
 wipe_runtime_directory:
-  stage: build
+  stage: setup
   tags: [shell]
   rules:
     - if: $CI_PIPELINE_SOURCE =~ /web/ && $MAINTAINANCE_PIPELINE != null
