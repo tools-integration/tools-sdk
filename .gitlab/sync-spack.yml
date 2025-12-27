@@ -14,8 +14,8 @@ include:
       gitlab_repo: git@ssh.gitlab.spack.io:tools-sdk/tools-sdk.git
       gitlab_host: https://gitlab.spack.io/
       gitlab_project: tools-sdk/tools-sdk
-      status_context: "Frank CI"
       sync_draft_prs: true
       sync_image: ghcr.io/spack/ci-bridge:0.0.46
+      extra_args: --disable-status-post
     rules:
       - if: $CI_SERVER_HOST == "gitlab.spack.io"
