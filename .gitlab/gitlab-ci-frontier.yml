@@ -38,6 +38,7 @@ stages:
     SPACK_DISABLE_LOCAL_CONFIG: "true"
     SPACK_BUILD_DIR: "${CUSTOM_CI_BUILDS_DIR}/artifacts/spack-build-${CI_PIPELINE_IID}"
     SPACK_USER_CACHE_PATH: "${SPACK_BUILD_DIR}/cache"
+    SPACK_BUILDCACHE_DIR: "/lustre/orion/world-shared/ums032/frontier-buildcache/"
 
     # Order matters
     JOB_MODULES: >-

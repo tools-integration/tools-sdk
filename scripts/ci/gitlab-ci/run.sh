@@ -43,6 +43,10 @@ case ${STEP} in
     # Activate the environment pointing to the config directory
     spack env activate --create --without-view --envfile "${PWD}/spack/template" tools-sdk
 
+    if [ -n "${SPACK_BUILDCACHE_DIR}" ]; then
+      spack mirror add --unsigned --autopush frontier "file://${SPACK_BUILDCACHE_DIR}"
+    fi
+
     # Verify environment is active
     spack env status
 
