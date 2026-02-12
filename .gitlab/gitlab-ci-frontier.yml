@@ -86,6 +86,10 @@ install:frontier-gcc:
     - setup:frontier-gcc
   dependencies:
     - setup:frontier-gcc
+  retry: 2
+  artifacts:
+    paths:
+      - spack_log.out
 
 .report-status:
   tags: [shell]
@@ -196,4 +200,4 @@ wipe_runtime_directory:
     GIT_STRATEGY: none
   script:
     - rm -vrf "${CUSTOM_CI_BUILDS_DIR}/"*
-    - chmod -vR g+rw "/lustre/orion/ums032/scratch/ums032_auser"
+    - chmod -vR 730 "${CUSTOM_CI_BUILDS_DIR}/"
