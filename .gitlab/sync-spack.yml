@@ -17,5 +17,6 @@ include:
       sync_draft_prs: true
       sync_image: ghcr.io/spack/ci-bridge:0.0.46
       extra_args: --disable-status-post
+      prereq_check: check_user_allowlist
     rules:
       - if: $CI_SERVER_HOST == "gitlab.spack.io"
