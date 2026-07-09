@@ -9,6 +9,7 @@ stages:
   - pre
   - setup
   - install
+  - submit
   - post
 
 .checkout_commit: &checkout_commit |
@@ -78,10 +79,6 @@ install:frontier-gcc:
     - rsync -av "${SPACK_BUILD_DIR}/spack" "${SPACK_BUILD_COMPUTING_DIR}"
     - rsync -av "${SPACK_USER_CACHE_PATH}/" "${SPACK_USER_CACHE_COMPUTING_PATH}"
     - SPACK_BUILD_DIR="${SPACK_BUILD_COMPUTING_DIR}" SPACK_USER_CACHE_PATH="${SPACK_USER_CACHE_COMPUTING_PATH}" bash scripts/ci/gitlab-ci/run.sh install
-  after_script:
-    - *load_modules
-    - source scripts/ci/gitlab-ci/setup-vars.sh
-    - bash scripts/ci/gitlab-ci/run.sh submit
   needs:
     - setup:frontier-gcc
   dependencies:
@@ -90,6 +87,19 @@ install:frontier-gcc:
   artifacts:
     paths:
       - spack_log.out
+
+submit:frontier-gcc:
+  extends: .frontier-common
+  stage: submit
+  tags: [shell]
+  before_script:
+    - *checkout_commit
+    - *load_modules
+  script:
+    - source scripts/ci/gitlab-ci/setup-vars.sh
+    - bash scripts/ci/gitlab-ci/run.sh submit
+  needs:
+    - install:frontier-gcc
 
 .report-status:
   tags: [shell]
