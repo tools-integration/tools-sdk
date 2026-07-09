@@ -1,0 +1,27 @@
+name: Security
+
+on:
+  push:
+    branches:
+      - main
+  pull_request_target:
+
+env:
+  ALLOWED_USERNAMES: |
+    kwryankrattiger
+    qtpowell
+    vicentebolea
+
+jobs:
+  check_user:
+    name: check_user_allowlist
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify user is allowed
+        run: |
+          if echo "${{ env.ALLOWED_USERNAMES }}" | grep -qx "${{ github.actor }}"; then
+            echo "User ${{ github.actor }} is authorized"
+          else
+            echo "User ${{ github.actor }} is not in the allowlist"
+            exit 1
+          fi
