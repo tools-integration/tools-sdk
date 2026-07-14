@@ -114,6 +114,9 @@ case ${STEP} in
     echo "**********Submit Begin**********"
     # Placeholder for submission to CDash or other reporting systems
     echo "Submit step - currently a placeholder"
+
+    find "${SPACK_USER_CACHE_PATH}"/reports -type f -exec curl -T {} "https://open.cdash.org/submit.php?project=TOOLS-SDK" ';'
+
     echo "**********Submit End**********"
     ;;
 
