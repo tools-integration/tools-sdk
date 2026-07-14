@@ -11,6 +11,7 @@ env:
     kwryankrattiger
     qtpowell
     vicentebolea
+    hainest
 
 jobs:
   check_user:
