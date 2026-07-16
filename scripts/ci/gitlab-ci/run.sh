@@ -48,6 +48,12 @@ case ${STEP} in
     echo "**********Setup Begin**********"
     git clone -c feature.manyFiles=true https://github.com/spack/spack.git "${SPACK_BUILD_DIR}/spack"
 
+    # Apply patch to be able to skip the cdash upload during spack install
+    patch="$(pwd)/scripts/ci/gitlab-ci/cdash-upload.patch"
+    cd "${SPACK_BUILD_DIR}/spack"
+    git apply "$patch"
+    cd -
+
     # Clone spack-packages
     mkdir -p "${SPACK_BUILD_DIR}/spack-packages"
     cd "${SPACK_BUILD_DIR}/spack-packages"
@@ -103,7 +109,13 @@ case ${STEP} in
     spack config blame
 
     # Install the environment with timing and parallel jobs
-    spack -t install "-j$((NUM_CORES*2))" --show-log-on-error --no-check-signature --fail-fast | tee spack_log.out 2>&1
+    spack -t install \
+      "-j$((NUM_CORES*2))" \
+      --show-log-on-error \
+      --no-check-signature \
+      --fail-fast \
+      "--cdash-upload-url=skip_upload" \
+      | tee spack_log.out 2>&1
 
     # Show what was installed
     spack find -lv
@@ -112,8 +124,9 @@ case ${STEP} in
 
   submit)
     echo "**********Submit Begin**********"
-    # Placeholder for submission to CDash or other reporting systems
-    echo "Submit step - currently a placeholder"
+
+    find "${SPACK_USER_CACHE_PATH}"/reports -type f -exec curl -T {} "https://open.cdash.org/submit.php?project=TOOLS-SDK" ';'
+
     echo "**********Submit End**********"
     ;;
 

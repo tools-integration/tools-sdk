@@ -79,6 +79,7 @@ install:frontier-gcc:
     - rsync -av "${SPACK_BUILD_DIR}/spack" "${SPACK_BUILD_COMPUTING_DIR}"
     - rsync -av "${SPACK_USER_CACHE_PATH}/" "${SPACK_USER_CACHE_COMPUTING_PATH}"
     - SPACK_BUILD_DIR="${SPACK_BUILD_COMPUTING_DIR}" SPACK_USER_CACHE_PATH="${SPACK_USER_CACHE_COMPUTING_PATH}" bash scripts/ci/gitlab-ci/run.sh install
+    - rsync -av "${SPACK_USER_CACHE_COMPUTING_PATH}/" "${SPACK_USER_CACHE_PATH}"
   needs:
     - setup:frontier-gcc
   dependencies:

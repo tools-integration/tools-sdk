@@ -1,0 +1,23 @@
+diff --git a/lib/spack/spack/reporters/cdash.py b/lib/spack/spack/reporters/cdash.py
+index cd3ac31a37..c9ae4949fa 100644
+--- a/lib/spack/spack/reporters/cdash.py
++++ b/lib/spack/spack/reporters/cdash.py
+@@ -296,7 +296,7 @@ def build_report(self, report_dir, specs):
+         # Generate reports for each package in each spec.
+         for spec in specs:
+             duration = 0
+-            if "time" in spec:
++            if "time" in spec and spec["time"]:
+                 duration = int(spec["time"])
+             for package in spec["packages"]:
+                 self.build_report_for_package(report_dir, package, duration)
+@@ -432,6 +432,9 @@ def upload(self, filename):
+             print("Cannot upload {0} due to missing upload url".format(filename))
+             return
+ 
++        if self.cdash_upload_url == "skip_upload":
++            return
++
+         # Compute md5 checksum for the contents of this file.
+         md5sum = checksum(hashlib.md5, filename, block_size=8192)
+ 
