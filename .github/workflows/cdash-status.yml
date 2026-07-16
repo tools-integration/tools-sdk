@@ -7,6 +7,6 @@ jobs:
   cdash-status:
     runs-on: ubuntu-latest
     steps:
-      - uses: Kitware/cdash-status@v1
+      - uses: Kitware/cdash-status@v2
         with:
           project: "TOOLS-SDK"
