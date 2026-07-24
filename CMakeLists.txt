@@ -7,3 +7,5 @@ project(tools-sdk
 
 install(FILES spack/configs/packages.yaml DESTINATION spack/configs/toolssdk)
 install(DIRECTORY spack/template DESTINATION spack/environments/toolssdk)
+
+message(STATUS "Hello")
